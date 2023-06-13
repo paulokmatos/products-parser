@@ -2,25 +2,31 @@
 
 namespace App\Http\Controllers;
 
+use App\DTOs\ProductDTO;
 use App\Http\Requests\ProductStoreRequest;
-use Illuminate\Http\Request;
+use App\Services\ProductService;
 
 class ProductController extends Controller
 {
+
+    public function __construct(
+        protected ProductService $service
+    ) {}
+
     /**
-     * Display a listing of the resource.
+     * List paginated products in database.
      */
     public function index()
     {
-        //
+        return $this->service->getAll();
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Display API Info
      */
-    public function create()
+    public function apiDetails()
     {
-        //
+        echo "Info";
     }
 
     /**
@@ -28,38 +34,34 @@ class ProductController extends Controller
      */
     public function store(ProductStoreRequest $request)
     {
-        //
+        $this->service->store(
+            ProductDTO::makeFromRequest($request)
+        );
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(string $code)
     {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
+        return $this->service->findOne($code);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(ProductStoreRequest $request, string $code)
     {
-        //
+        $this->service->update(
+            ProductDTO::makeFromRequest($request)
+        );
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(string $code)
     {
-        //
+        $this->service->delete($code);
     }
 }
