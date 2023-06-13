@@ -22,7 +22,29 @@ class ProductStoreRequest extends FormRequest
     public function rules(): array
     {
         return [
-            
+            'code' => 'required|string',
+            'status' => 'required|string',
+            'imported_t' => 'required|string',
+            'url' => 'required|url',
+            'creator' => 'required|string',
+            'created_t' => 'required|string',
+            'last_modified_t' => 'required|string',
+            'product_name' => 'required|string',
+            'quantity' => 'required|string',
+            'brands' => 'required|string',
+            'categories' => 'required|string',
+            'labels' => 'required|string',
+            'cities' => 'required|string',
+            'purchase_places' => 'required|string',
+            'stores' => 'required|string',
+            'ingredients_text' => 'required|string',
+            'traces' => 'required|string',
+            'serving_size' => 'required|string',
+            'serving_quantity' => 'required|string',
+            'nutriscore_score' => 'required|string',
+            'nutriscore_grade' => 'required|string',
+            'main_category' => 'required|string',
+            'image_url' => 'required|url',
         ];
     }
 }
