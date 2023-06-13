@@ -1,0 +1,41 @@
+version: '3'
+
+services:
+  mysql:
+    container_name: products_parser_db
+    image: mysql
+    restart: always
+    environment:
+      MYSQL_USER: test
+      MYSQL_ROOT_PASSWORD: test
+      MYSQL_PASSWORD: test
+      MYSQL_DATABASE: test
+    networks:
+      - default
+
+  elasticsearch:
+    container_name: products_parser_elasticsearch
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.14.0
+    restart: always
+    environment:
+      - discovery.type=single-node
+    networks:
+      - default
+
+  products_parser_api:
+    container_name: products_parser_api
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "8000:8000"
+    depends_on:
+      - mysql
+      - elasticsearch
+    networks:
+      - default
+
+networks:
+  default:
+    driver: bridge
