@@ -15,12 +15,12 @@ class ProductEloquentORM implements ProductRepositoryInterface
 
     public function getAll(): array
     {
-        return $this->model->paginate(20)->toArray();
+        return $this->model->whereNot('status', 'trash')->paginate(20)->toArray();
     }
 
     public function findOne(string $code): ?stdClass
     {
-        $product = $this->model->where('code', $code)->get();
+        $product = $this->model->where('code', $code)->whereNot('status', 'trash')->firstOrFail();
 
         if(!$product) return null;
 
@@ -38,7 +38,7 @@ class ProductEloquentORM implements ProductRepositoryInterface
 
     public function delete(string $code): void
     {
-        $this->model->where('code', $code)->firstOrFail()->delete();
+        $this->model->where('code', $code)->update(['status' => 'trash']);
     }
 
     public function update(ProductDTO $dto): ?stdClass
