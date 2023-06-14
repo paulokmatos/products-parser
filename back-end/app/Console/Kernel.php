@@ -12,7 +12,7 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        // $schedule->command('inspire')->hourly();
+        $schedule->command('import:openfoodfacts')->dailyAt(config('command.import_open_food_facts.time_to_schedule_job'));
     }
 
     /**
