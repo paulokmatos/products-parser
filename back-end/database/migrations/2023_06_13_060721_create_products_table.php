@@ -13,29 +13,29 @@ return new class extends Migration
     {
         Schema::create('products', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('code')->unique();
-            $table->enum('status', ['T', 'P', 'D']);
+            $table->string('code')->unique();
+            $table->enum('status', ['trash', 'published', 'draft']);
             $table->timestamp('imported_t');
             $table->string('url');
-            $table->string('creator');
+            $table->string('creator')->nullable();
             $table->unsignedBigInteger('created_t');
-            $table->unsignedBigInteger('last_modified_t');
-            $table->string('product_name');
-            $table->string('quantity');
-            $table->string('brands');
-            $table->text('categories');
-            $table->string('labels');
+            $table->unsignedBigInteger('last_modified_t')->nullable();
+            $table->string('product_name')->nullable();
+            $table->string('quantity')->nullable();
+            $table->string('brands')->nullable();
+            $table->text('categories')->nullable();
+            $table->string('labels')->nullable();
             $table->string('cities')->nullable();
-            $table->string('purchase_places');
-            $table->string('stores');
-            $table->text('ingredients_text');
-            $table->string('traces');
-            $table->string('serving_size');
-            $table->decimal('serving_quantity', 8, 2);
-            $table->integer('nutriscore_score');
-            $table->string('nutriscore_grade');
-            $table->string('main_category');
-            $table->string('image_url');
+            $table->string('purchase_places')->nullable();
+            $table->string('stores')->nullable();
+            $table->text('ingredients_text')->nullable();
+            $table->string('traces')->nullable();
+            $table->string('serving_size')->nullable();
+            $table->decimal('serving_quantity', 8, 2)->nullable();
+            $table->integer('nutriscore_score')->nullable();
+            $table->string('nutriscore_grade')->nullable();
+            $table->string('main_category')->nullable();
+            $table->string('image_url')->nullable();
             $table->timestamps();
         });
     }
