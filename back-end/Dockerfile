@@ -1,59 +1,41 @@
-FROM php:8.1-fpm-alpine
+# Use a imagem oficial do PHP 8.1 como base
+FROM php:8.1
 
-WORKDIR /var/www/html/project
+# Instale as dependências necessárias
+RUN apt-get update
+RUN apt-get install -y --no-install-recommends \
+    libssl-dev \
+    libcurl4-openssl-dev \
+    libzip-dev \
+    libpq-dev \
+    unzip \
+    git \
+    postgresql \
+&& rm -rf /var/lib/apt/lists/*
 
-RUN apk update \
-    && apk upgrade \
-    && apk add git tzdata wget
+#instala o Redis
+RUN pecl install redis && docker-php-ext-enable redis
 
-# Set timezone
-ENV TZ=America/Sao_Paulo
+# Instale as extensões do PHP necessárias
+RUN docker-php-ext-install pdo_mysql pdo_pgsql zip bcmath
 
-# Install dependencies
-RUN apk add --no-cache --update --virtual .phpize-deps $PHPIZE_DEPS \
-  libxml2-dev curl-dev linux-headers oniguruma-dev imap-dev openssl-dev libpng-dev libzip-dev zip
+# Instale o Composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# install extensions
-RUN docker-php-ext-install mysqli pdo pdo_mysql dom curl mbstring imap opcache gd zip
+# Defina o diretório de trabalho como o diretório do projeto Laravel
+WORKDIR /var/www/html
 
-RUN apk add --no-cache mysql-client msmtp perl wget procps shadow libzip libpng libjpeg-turbo libwebp freetype icu
+# Copie os arquivos do projeto Laravel para o contêiner
+COPY . .
 
-RUN apk add --no-cache --virtual build-essentials \
-    icu-dev icu-libs zlib-dev g++ make automake autoconf libzip-dev \
-    libpng-dev libwebp-dev libjpeg-turbo-dev freetype-dev && \
-    docker-php-ext-configure gd --enable-gd --with-freetype --with-jpeg --with-webp && \
-    docker-php-ext-install gd && \
-    docker-php-ext-install mysqli && \
-    docker-php-ext-install pdo_mysql && \
-    docker-php-ext-install intl && \
-    docker-php-ext-install opcache && \
-    docker-php-ext-install exif && \
-    docker-php-ext-install zip && \
-    apk del build-essentials && rm -rf /usr/src/php*
+# Instale as dependências do Composer
+RUN composer install --optimize-autoloader --no-dev --no-interaction
 
-# Composer
-RUN \
-    php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" \
-    && HASH="$(wget -q -O - https://composer.github.io/installer.sig)" \
-    && php -r "if (hash_file('SHA384', 'composer-setup.php') === '$HASH') { echo 'Installer verified'; } else { echo 'Installer corrupt'; unlink('composer-setup.php'); } echo PHP_EOL;" \
-    && php composer-setup.php --install-dir=/usr/local/bin --filename=composer
+# Defina as permissões corretas para os arquivos do Laravel
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
-# Setup cron
-RUN echo '*  *  *  *  * /usr/local/bin/php  /var/www/html/project/artisan schedule:run >> /dev/null 2>&1' > /etc/crontabs/root
+# Exponha a porta 8000 para acesso HTTP
+EXPOSE 8000
 
-COPY ./ ./
-
-RUN composer install
-
-# Setting permissions
-RUN \
-    chown -R www-data:www-data /var/www/html/project && \
-    find /var/www/html/project -type f -exec chmod 644 {} \; && \
-    find /var/www/html/project -type d -exec chmod 755 {} \;
-
-EXPOSE 80 443
-
-# Remove Build Dependencies
-RUN apk del -f $PHPIZE_DEPS libxml2-dev curl-dev linux-headers oniguruma-dev imap-dev openssl-dev
-
-CMD ["php", "artisan", "serve"]
+# Execute o servidor embutido do Laravel
+CMD php artisan serve --host=0.0.0.0 --port=8000
