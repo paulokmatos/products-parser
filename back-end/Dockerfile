@@ -11,6 +11,7 @@ RUN apt-get install -y --no-install-recommends \
     unzip \
     git \
     postgresql \
+    procps \
 && rm -rf /var/lib/apt/lists/*
 
 #instala o Redis

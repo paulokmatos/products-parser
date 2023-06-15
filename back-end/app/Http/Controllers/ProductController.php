@@ -3,15 +3,18 @@
 namespace App\Http\Controllers;
 
 use App\DTOs\ProductDTO;
-use App\Http\Requests\ProductStoreRequest;
+use App\Helpers\ApiInfo;
+use App\Http\Requests\ProductUpdateRequest;
 use App\Services\ProductService;
+use Illuminate\Http\Response;
 
 class ProductController extends Controller
 {
 
     public function __construct(
         protected ProductService $service
-    ) {}
+    ) {
+    }
 
     /**
      * List paginated products in database.
@@ -21,22 +24,20 @@ class ProductController extends Controller
         return $this->service->getAll();
     }
 
-    /**
-     * Display API Info
-     */
     public function apiDetails()
     {
-        echo "Info";
-    }
+        $databaseConnection = ApiInfo::checkDatabaseConnection();
+        $memoryUsage = ApiInfo::getMemoryUsage();
+        $uptime = exec('uptime -p');
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(ProductStoreRequest $request)
-    {
-        $this->service->store(
-            ProductDTO::makeFromRequest($request)
-        );
+        $apiDetails = [
+            'database_connection' => $databaseConnection,
+            // 'last_cron_execution' => $lastCronExecution,
+            'memory_usage' => $memoryUsage,
+            'uptime' => $uptime,
+        ];
+
+        return response()->json($apiDetails, Response::HTTP_OK);
     }
 
     /**
@@ -44,17 +45,21 @@ class ProductController extends Controller
      */
     public function show(string $code)
     {
-        return $this->service->findOne($code);
+        $product = $this->service->findOne($code);
+        return response()->json($product, Response::HTTP_OK);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(ProductStoreRequest $request, string $code)
+    public function update(ProductUpdateRequest $request, string $code)
     {
-        $this->service->update(
-            ProductDTO::makeFromRequest($request)
+        $product = $this->service->update(
+            ProductDTO::makeFromRequest($request),
+            $code
         );
+
+        return response()->json($product, Response::HTTP_OK);
     }
 
     /**
@@ -63,5 +68,7 @@ class ProductController extends Controller
     public function destroy(string $code)
     {
         $this->service->delete($code);
+
+        return response('', Response::HTTP_NO_CONTENT);
     }
 }
