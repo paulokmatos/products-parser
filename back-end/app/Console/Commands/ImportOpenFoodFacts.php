@@ -1,6 +1,5 @@
 <?php
 
-
 namespace App\Console\Commands;
 
 use App\DTOs\ProductDTO;
@@ -14,10 +13,13 @@ class ImportOpenFoodFacts extends Command
     protected $signature = 'import:openfoodfacts';
     protected $description = 'Import Open Food Facts data';
 
+    // Define the URLs as class constants
+    private const INDEX_URL = 'https://challenges.coode.sh/food/data/json/index.txt';
+    private const DATA_URL_BASE = 'https://challenges.coode.sh/food/data/json/';
+
     public function handle()
     {
-        $indexUrl = "https://challenges.coode.sh/food/data/json/index.txt";
-        $index = explode("\n", file_get_contents($indexUrl));
+        $index = explode("\n", file_get_contents(self::INDEX_URL));
 
         foreach ($index as $file) {
             $this->importFile($file);
@@ -28,20 +30,21 @@ class ImportOpenFoodFacts extends Command
 
     private function importFile($file)
     {
-        $url = "https://challenges.coode.sh/food/data/json/$file";
+        $url = self::DATA_URL_BASE . $file;
         $response = Http::get($url);
-        $this->info('Log aqui');
+        $this->info("Downloading file: $file");
+
         GzFileProcessor::process($response->body(), function($fileContent, $index) {
             $json = json_decode($fileContent, true);
 
             if(is_null($json)) return;
-            
+
             $dto = ProductDTO::makeFromArray($json);
 
             dispatch(new CreateProduct($dto));
 
             $this->info("$index º Enviado para a Fila");
-            
+
         }, 100);
     }
 }
