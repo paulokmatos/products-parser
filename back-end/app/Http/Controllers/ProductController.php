@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\DTOs\ProductDTO;
 use App\Helpers\ApiInfo;
 use App\Http\Requests\ProductUpdateRequest;
 use App\Services\ProductService;
+use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
 class ProductController extends Controller
@@ -19,9 +19,11 @@ class ProductController extends Controller
     /**
      * List paginated products in database.
      */
-    public function index()
+    public function index(Request $request)
     {
-        return $this->service->getAll();
+        $limit = $request->input('limit', 20);
+        $offset = $request->input('offset', 0);
+        return $this->service->getAll($limit, $offset);
     }
 
     public function apiDetails()
@@ -55,7 +57,7 @@ class ProductController extends Controller
     public function update(ProductUpdateRequest $request, string $code)
     {
         $product = $this->service->update(
-            ProductDTO::makeFromRequest($request),
+            ProductUpdateRequest::makeFromRequest($request),
             $code
         );
 
