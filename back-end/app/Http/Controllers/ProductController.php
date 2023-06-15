@@ -48,6 +48,14 @@ class ProductController extends Controller
     public function show(string $code)
     {
         $product = $this->service->findOne($code);
+
+        if (is_null($product)) {
+            return response()->json([
+                'error' => 'Product not Found',
+                'code' => Response::HTTP_NOT_FOUND
+            ], Response::HTTP_NOT_FOUND);
+        }
+
         return response()->json($product, Response::HTTP_OK);
     }
 
@@ -60,6 +68,13 @@ class ProductController extends Controller
             ProductUpdateRequest::makeFromRequest($request),
             $code
         );
+
+        if (is_null($product)) {
+            return response()->json([
+                'error' => 'Product not Found',
+                'code' => Response::HTTP_NOT_FOUND
+            ], Response::HTTP_NOT_FOUND);
+        }
 
         return response()->json($product, Response::HTTP_OK);
     }
