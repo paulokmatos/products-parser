@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\DTOs\UpdateProductDTO;
 use App\Helpers\ApiInfo;
 use App\Http\Requests\ProductUpdateRequest;
 use App\Services\ProductService;
@@ -65,7 +66,7 @@ class ProductController extends Controller
     public function update(ProductUpdateRequest $request, string $code)
     {
         $product = $this->service->update(
-            ProductUpdateRequest::makeFromRequest($request),
+            UpdateProductDTO::makeFromRequest($request),
             $code
         );
 

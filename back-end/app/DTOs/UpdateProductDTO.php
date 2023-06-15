@@ -35,7 +35,7 @@ class UpdateProductDTO
     public static function makeFromRequest(ProductUpdateRequest $request): self
     {
         return new self(
-            "published",
+            $request->input('status'),
             Carbon::now(),
             $request->input('url'),
             $request->input('creator'),
