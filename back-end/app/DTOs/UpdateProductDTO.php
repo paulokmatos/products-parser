@@ -5,38 +5,36 @@ namespace App\DTOs;
 use App\Http\Requests\ProductUpdateRequest;
 use Carbon\Carbon;
 
-class ProductDTO
+class UpdateProductDTO
 {
     public function __construct(
-        public string $code,
-        public string $status,
-        public string $imported_t,
-        public string $url,
-        public ?string $creator,
-        public string $created_t,
-        public string $last_modified_t,
-        public ?string $product_name,
-        public ?string $quantity,
-        public ?string $brands,
-        public ?string $categories,
-        public ?string $labels,
-        public ?string $cities,
-        public ?string $purchase_places,
-        public ?string $stores,
-        public ?string $ingredients_text,
-        public ?string $traces,
-        public ?string $serving_size,
-        public ?string $serving_quantity,
-        public ?string $nutriscore_score,
-        public ?string $nutriscore_grade,
-        public ?string $main_category,
-        public ?string $image_url,
+        public ?string $status = null,
+        public ?string $imported_t = null,
+        public ?string $url = null,
+        public ?string $creator = null,
+        public ?string $created_t = null,
+        public ?string $last_modified_t = null,
+        public ?string $product_name = null,
+        public ?string $quantity = null,
+        public ?string $brands = null,
+        public ?string $categories = null,
+        public ?string $labels = null,
+        public ?string $cities = null,
+        public ?string $purchase_places = null,
+        public ?string $stores = null,
+        public ?string $ingredients_text = null,
+        public ?string $traces = null,
+        public ?string $serving_size = null,
+        public ?string $serving_quantity = null,
+        public ?string $nutriscore_score = null,
+        public ?string $nutriscore_grade = null,
+        public ?string $main_category = null,
+        public ?string $image_url = null,
     ) {}
 
     public static function makeFromRequest(ProductUpdateRequest $request): self
     {
         return new self(
-            $request->input('code'),
             "published",
             Carbon::now(),
             $request->input('url'),
@@ -64,12 +62,9 @@ class ProductDTO
 
     public static function makeFromArray(array $data): self
     {
-        $code = preg_replace("/[^0-9]/", "", $data['code']);
-        $data['code'] = $code;
         $data = self::convertEmptyStringsToNull($data);
 
         return new self(
-            $data['code'],
             "published",
             Carbon::now(),
             $data['url'],

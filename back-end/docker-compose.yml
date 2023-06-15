@@ -1,38 +1,59 @@
 version: '3'
-
 services:
-  mysql:
-    container_name: products_parser_db
-    image: mysql
+  app:
+    container_name: app
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 8000:8000
+    volumes:
+      - .:/var/www/html
+    depends_on:
+      - postgres
+      - redis
+      - elasticsearch
+    networks:
+      - default
+
+  # mysql:
+  #   container_name: mysql_db
+  #   image: mysql:8.0
+  #   ports:
+  #     - 3306:3306
+  #   environment:
+  #     MYSQL_DATABASE: products
+  #     MYSQL_USER: user
+  #     MYSQL_PASSWORD: '123'
+  #     MYSQL_ROOT_PASSWORD: 'admin' 
+  #   networks:
+  #     - default
+
+  postgres:
+    container_name: postgresql
+    image: postgres
     restart: always
     environment:
-      MYSQL_USER: test
-      MYSQL_ROOT_PASSWORD: test
-      MYSQL_PASSWORD: test
-      MYSQL_DATABASE: test
+      POSTGRES_DB: test
+      POSTGRES_USER: test
+      POSTGRES_PASSWORD: test
+    networks:
+      - default
+
+  redis:
+    container_name: redis
+    image: redis
+    restart: always
     networks:
       - default
 
   elasticsearch:
-    container_name: products_parser_elasticsearch
+    container_name: elasticsearch_db
     image: docker.elastic.co/elasticsearch/elasticsearch:7.14.0
-    restart: always
     environment:
       - discovery.type=single-node
-    networks:
-      - default
-
-  products_parser_api:
-    container_name: products_parser_api
-    build:
-      context: .
-      dockerfile: Dockerfile
-    restart: always
     ports:
-      - "8000:8000"
-    depends_on:
-      - mysql
-      - elasticsearch
+      - 9200:9200
     networks:
       - default
 
