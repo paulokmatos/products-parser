@@ -6,7 +6,7 @@ class GzFileProcessor
 {
     /**
      * @param string $gzContent
-     * @param callable $execute recebe dois parametros, string $fileName e string $fileContent
+     * @param callable $execute
      * @return void
      */
     public static function process(string $gzContent, callable $execute, int $limit = null): void
@@ -30,8 +30,8 @@ class GzFileProcessor
 
         if ($fileHandle) {
             while (!gzeof($fileHandle)) {
-                if(isset($limit) && $index > $limit) break;
-                
+                if(isset($limit) && $index >= $limit) break;
+
                 $line = fgets($fileHandle);
 
                 if(is_null($line)) continue;
